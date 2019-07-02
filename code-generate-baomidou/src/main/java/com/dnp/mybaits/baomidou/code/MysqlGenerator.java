@@ -13,7 +13,8 @@ import java.util.List;
 
 /**
  * <p>
- * mysql 代码生成器演示例子
+ * mysql 代码生成器演示例子 这个用的是FreemarkerTemplateEngine（ftl），
+ * 所以就不会加载我自定义的controller.java.vm， 生成代码生成器原生的。
  * </p>
  *
  * @author jobob
@@ -31,10 +32,8 @@ public class MysqlGenerator {
     /*数据库driver*/
     private static String DB_DRIVER = "com.mysql.jdbc.Driver";
 
-    /*这个是当前项目的的绝对路径（开启的那个项目）， 这个地方我一般写的是项目的绝对路径：如：G:\my-git-project\code-generate-system\code-generate-baomidou*/
-    private static String PROJECT_PATH = System.getProperty("user.dir");
-    /*是否是子项目，是就填上，不是就填空。注意：不要少了前面那一个个分隔符*/
-    private static String SBU_PROJECT_NAME = "/common-permission-api";
+    /*注意写绝对路径：如：G:\my-git-project\code-generate-system\demo-code\src\main\java*/
+    private static String OUT_PUT_DIR = "G:\\my-git-project\\code-generate-system\\demo-code\\src\\main\\java";
     /*自己定义的包名称*/
     private static String PK_NAME = "com.dnp.ptt";
     /* 自己定义的基本的操作生成到那个模块，没有就填空*/
@@ -52,7 +51,7 @@ public class MysqlGenerator {
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setOutputDir(PROJECT_PATH + SBU_PROJECT_NAME + "/src/main/java");
+        gc.setOutputDir(OUT_PUT_DIR);
         gc.setAuthor(AUTHOR);
         gc.setOpen(false);
         gc.setSwagger2(true);
@@ -87,7 +86,7 @@ public class MysqlGenerator {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输入文件名称
-                return PROJECT_PATH + SBU_PROJECT_NAME + "/src/main/resources/mapper/" + pc.getModuleName()
+                return OUT_PUT_DIR.replace("java", "resources/mapper/") + pc.getModuleName()
                         + "/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
             }
         });

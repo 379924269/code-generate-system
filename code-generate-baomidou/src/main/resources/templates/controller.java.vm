@@ -32,7 +32,7 @@ import java.util.Date;
  * @author ${author}
  * @since ${date}
  */
-@Api(value = "${table.controllerName}", description = "${table.comment}")
+@Api(value = "${table.controllerName}", description = "${table.entityPath}接口信息")
 @RestController
 @RequestMapping(value = "#if(${package.ModuleName})/${package.ModuleName}#end/${table.entityPath}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 #if(${superControllerClass})
@@ -80,15 +80,7 @@ public void save(
     #end
 #end
         ){
-${entity} ${table.entityPath} =new ${entity}(
-#foreach($field in ${table.fields})
-    #set($lastField= ${field.propertyName})
-#end
-
-#foreach($field in ${table.fields})
-    #if( ${field.propertyName.equals("id")})#else${field.propertyName}#if(${lastField} != ${field.propertyName}),#end#end
-#end
-        );
+${entity} ${table.entityPath} =new ${entity}();
 ${table.entityPath}Service.save(${table.entityPath});
         }
 

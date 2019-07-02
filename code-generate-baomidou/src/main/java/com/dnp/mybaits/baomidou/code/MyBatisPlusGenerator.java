@@ -1,70 +1,66 @@
 package com.dnp.mybaits.baomidou.code;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.InjectionConfig;
-import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
-import com.baomidou.mybatisplus.generator.config.GlobalConfig;
-import com.baomidou.mybatisplus.generator.config.PackageConfig;
-import com.baomidou.mybatisplus.generator.config.StrategyConfig;
+import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
+import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * mybatis-plus代码生成器(用于生成entity)<br>
- * 注意:<br>
- * 因为没用mybatis-plus的Service和Controller所以生成完之后要删掉TTT目录
+ * Description: 自动生成代码， 我仿照的是最新mybaits的生成代码写的。 最新的用的是FreemarkerTemplateEngine（ftl）， 我自己
+ * 的自定义了controller
  *
- * @author stylefeng
- * @Date 2017/5/21 12:38
+ * @Author: 华仔
+ * @Date: 2019/7/2
  */
 public class MyBatisPlusGenerator {
-    /*文件生成存放的目录，一般生成到我们自己的项目下*/
-    private static String OUT_PUT_DIR = "G:\\my-git-project\\commonUtil\\simple-mybaits-plus\\src\\main\\java";
-    /*包名,controller、entity、dao、service到的包*/
-    private static String PACKAGE_NAME = "com.cn.huazai.modular";
-    /*作者*/
-    private static String AUTHOR = "huazai";
     /*数据库用户名称*/
     private static String DB_USER_NAME = "root";
     /*数据库密码*/
     private static String DB_PASSWORD = "123456";
     /*数据库url*/
-    private static String DB_URL = "jdbc:mysql://localhost:3306/ptt_jun_dui?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull";
-    /*需要生成的表，不填就生成所有表*/
-//    {"users","role","role_resource","resource","manager","manager_role","zuul_route"};
-    private static String[] INCLUED_TABLE = {"users","msglog","calllog","imei"};
+    private static String DB_URL = "jdbc:mysql://localhost:3306/ms_ptt?useUnicode=true&useSSL=false&characterEncoding=utf8";
+    /*数据库driver*/
+    private static String DB_DRIVER = "com.mysql.jdbc.Driver";
 
-    /*
-    PageVo分页实体放置的目录
+    /*作者*/
+    private static String AUTHOR = "huazai";
+    /*自己定义的包名称*/
+    private static String PK_NAME = "com.dnp.ptt";
+    /* 自己定义的基本的操作生成到那个模块，没有就填空*/
+    private static String MODULE = "modular";
+
+    /*注意写绝对路径：如：G:\my-git-project\code-generate-system\demo-code\src\main\java*/
+    private static String OUT_PUT_DIR = "G:\\my-git-project\\code-generate-system\\demo-code\\src\\main\\java";
+
+    /*自定义要生成的信息表，不传值就不生成所有表*/
+    private static String[] INCLUED_TABLE = {"users", "manager", "users_role", "manager_role", "resource", "role_resource"};
+
+
+    /**
+     * RUN THIS
      */
-    private static String PAGE_VO = "com.dnp.ptt.vo";
-
     public static void main(String[] args) {
+        // 代码生成器
         AutoGenerator mpg = new AutoGenerator();
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        //E:\ideaGitProject\spring-boot-learn\src\main\java
         gc.setOutputDir(OUT_PUT_DIR);//这里写你自己的java目录
+        gc.setAuthor(AUTHOR); // 作者
         gc.setFileOverride(false);//是否覆盖
-        gc.setActiveRecord(true);
-        gc.setEnableCache(false);// XML 二级缓存
+        gc.setOpen(false);
+        gc.setSwagger2(true); //调用swagger2
         gc.setBaseResultMap(true);// XML ResultMap
-        gc.setBaseColumnList(false);// XML columList
-        gc.setAuthor(AUTHOR);
-
-        // 自定义文件命名，注意 %s 会自动填充表实体属性！
-        gc.setMapperName("%sMapper");
-        gc.setXmlName("%sMapper");
-        gc.setServiceName("%sService");
-        gc.setServiceImplName("%sServiceImpl");
-        gc.setControllerName("%sController");
-
         mpg.setGlobalConfig(gc);
 
         // 数据源配置
@@ -74,68 +70,61 @@ public class MyBatisPlusGenerator {
             // 自定义数据库表字段类型转换【可选】
             @Override
             public IColumnType processTypeConvert(GlobalConfig globalConfig, String fieldType) {
-                System.out.println("转换类型：" + fieldType);
-                // if ( fieldType.toLowerCase().contains( "tinyint" ) ) {
-                //    return DbColumnType.BOOLEAN;
-                // }
                 return super.processTypeConvert(globalConfig, fieldType);
             }
         });
-        dsc.setDriverName("com.mysql.jdbc.Driver");
+        dsc.setUrl(DB_URL);
+        // dsc.setSchemaName("public");
+        dsc.setDriverName(DB_DRIVER);
         dsc.setUsername(DB_USER_NAME);
         dsc.setPassword(DB_PASSWORD);
-        dsc.setUrl(DB_URL);
         mpg.setDataSource(dsc);
-
-        // 策略配置
-        StrategyConfig strategy = new StrategyConfig();
-        //strategy.setTablePrefix(new String[]{"_"});// 此处可以修改为您的表前缀
-        strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
-        if (INCLUED_TABLE.length != 0) {
-            strategy.setInclude(INCLUED_TABLE); // 需要生成的表,注释就生成所有
-        }
-
-        mpg.setStrategy(strategy);
 
         // 包配置
         PackageConfig pc = new PackageConfig();
-        pc.setParent(null);
-//       注意下面那些不生成就直接注释了
-        pc.setEntity(PACKAGE_NAME + ".entity");
-        pc.setMapper(PACKAGE_NAME + ".dao");
-        pc.setXml(PACKAGE_NAME + ".dao.impl");
-        pc.setService(PACKAGE_NAME + ".service");       //本项目没用，生成之后删掉
-        pc.setServiceImpl(PACKAGE_NAME + ".service.impl");   //本项目没用，生成之后删掉
-        pc.setController(PACKAGE_NAME + ".controller");    //本项目没用，生成之后删掉
+//        模块名称根据自己的项目自己定义
+        pc.setModuleName(MODULE);
+//        pc.setParent("com.baomidou.mybatisplus.samples.generator");
+        pc.setParent(PK_NAME);
         mpg.setPackageInfo(pc);
 
-        // 注入自定义配置，可以在 VM 中使用 cfg.abc 设置的值
+//         自定义配置
         InjectionConfig cfg = new InjectionConfig() {
             @Override
             public void initMap() {
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put("abc", this.getConfig().getGlobalConfig().getAuthor() + "-mp");
-                map.put("packageName", PACKAGE_NAME);
-                map.put("pageVo", PAGE_VO);
+                Map<String, Object> map = new HashMap<>();
+                map.put("pageVo", "com.dnp.ptt.vo");
                 this.setMap(map);
             }
         };
+        List<FileOutConfig> focList = new ArrayList<>();
+        focList.add(new FileOutConfig("/templates/mapper.xml.vm") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输入文件名称
+                return OUT_PUT_DIR.replace("java", "resources/mapper/") + pc.getModuleName()
+                        + "/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+            }
+        });
 
-
+        cfg.setFileOutConfigList(focList);
         mpg.setCfg(cfg);
+        mpg.setTemplate(new TemplateConfig().setXml(null));
 
-        // 自定义模板配置，可以 copy 源码 mybatis-plus/src/main/resources/templates 下面内容修改，
-        // 放置自己项目的 src/main/resources/templates 目录下, 默认名称一下可以不配置，也可以自定义模板名称
-        //TemplateConfig tc = new TemplateConfig();
-        //tc.setController("templetes/controller.java.vm");
-        //tc.setEntity("templetes/entity.java.vm");
-        //
-        //mpg.setTemplate(tc);
-
-        // 执行生成
+        // 策略配置
+        StrategyConfig strategy = new StrategyConfig();
+        strategy.setNaming(NamingStrategy.underline_to_camel);
+        strategy.setColumnNaming(NamingStrategy.underline_to_camel);
+//        strategy.setSuperEntityClass("com.baomidou.mybatisplus.samples.generator.common.BaseEntity");
+        strategy.setEntityLombokModel(true);
+//        strategy.setSuperControllerClass("com.baomidou.mybatisplus.samples.generator.common.BaseController");
+        if (INCLUED_TABLE.length != 0) {
+            strategy.setInclude(INCLUED_TABLE); // 需要生成的表,注释就生成所有
+        }
+//        strategy.setSuperEntityColumns("id");
+//        strategy.setControllerMappingHyphenStyle(true);
+//        strategy.setTablePrefix(pc.getModuleName() + "_");
+        mpg.setStrategy(strategy);
         mpg.execute();
-
-        // 打印注入设置
-        System.err.println(mpg.getCfg().getMap().get("abc"));
     }
 }
