@@ -24,7 +24,7 @@ import java.util.Map;
  * 4、配置要生成的表：INCLUED_TABLE
  * 不配置就生成全部表，配置了就生成配置的表
  * 5、配置包名：PACKAGE_NAME
- * 不配置就生成全部表，配置了就生成配置的表
+ * 注意：配置报名的时候集合加上模块的名字
  * 6、vo对象的包名配置：VO_PACKAGE_NAME
  *
  * @author: 华仔
@@ -38,12 +38,12 @@ public class MysqlGenerator {
     /*数据库密码*/
     private static String DB_PASSWORD = "123456";
     /*数据库url*/
-    private static String DB_URL = "jdbc:mysql://localhost:3306/spring-cloud-auth?useUnicode=true&useSSL=false&characterEncoding=utf8";
+    private static String DB_URL = "jdbc:mysql://localhost:3306/test?useUnicode=true&useSSL=false&characterEncoding=utf8";
     /*数据库driver*/
     private static String DB_DRIVER = "com.mysql.jdbc.Driver";
 
     // 注意:绝对路径的写法，到java目录就可以了：如：G:\my-git-project\code-generate-system\demo-code\src\main\java
-    private static String OUT_PUT_DIR = "G:\\oauth2-learning-project\\oauth2-demo.git\\oauth2-demo\\authorization-code\\qq\\src\\main\\java";
+    private static String OUT_PUT_DIR = "G:\\my-git-project\\code-generate-system\\code-generate-baomidou\\src\\main\\java";
     /* 自己定义的基本的操作生成到那个模块，没有就填空*/
 //    moe.cnkirito.security.oauth2.code.modular.model
     private static String MODULE = "module";
@@ -51,10 +51,10 @@ public class MysqlGenerator {
     private static String[] INCLUED_TABLE = {};
 
     /*包名,controller、entity、dao、service到的包*/
-    private static String PACKAGE_NAME = "moe.cnkirito.security.oauth2.code.module";
+    private static String PACKAGE_NAME =  "com.dnp.mybaits.baomidou.module";
 
     /*PageVo分页实体放置的目录*/
-    private static String VO_PACKAGE_NAME = "moe.cnkirito.security.oauth2.code.vo";
+    private static String VO_PACKAGE_NAME = "com.dnp.mybaits.baomidou.vo";
 
 
     /**
