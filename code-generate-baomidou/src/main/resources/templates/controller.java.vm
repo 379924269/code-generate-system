@@ -4,13 +4,17 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.apache.commons.lang3.StringUtils;
 
 import ${package.Entity}.${entity};
 import ${package.Service}.${table.serviceName};
 import ${cfg.pageVo}.PageVo;
+import ${cfg.pageVo}.IdVo;
 
 import java.time.LocalDateTime;
 ##判断是否是要引入date包
@@ -32,7 +36,7 @@ import java.util.Date;
  * @author ${author}
  * @since ${date}
  */
-@Api(value = "${table.controllerName}", description = "${table.entityPath}接口信息")
+@Api(value = "${table.controllerName}", description = "${table.comment}")
 @RestController
 @RequestMapping(value = "#if(${package.ModuleName})/${package.ModuleName}#end/${table.entityPath}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 #if(${superControllerClass})
@@ -47,7 +51,13 @@ public class ${table.controllerName} {
 @ApiOperation(value = "查询所有${table.comment}", notes = "查询所有${table.comment}")
 public Object findAll(PageVo pageVo,
 @ApiParam(name = "search", value = "模糊查询字段") @RequestParam(required = false, defaultValue = "") String search){
-        return null;
+        Page<${entity}> page = new Page(pageVo.getOffset(), pageVo.getLimit());
+        QueryWrapper<${entity}> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.isNotEmpty(search)) {
+        queryWrapper.lambda().like(${entity}::getId, search);
+        }
+        queryWrapper.lambda().orderByDesc(${entity}::getId);
+        return ${table.entityPath}Service.page(page, queryWrapper);
         }
 
 
@@ -58,14 +68,14 @@ public ${entity} findById(@ApiParam(name = "id", value = "${table.comment}id", r
         }
 
 @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-@ApiOperation(value = "修改${table.comment}", notes = "修改${table.comment}")
+@ApiOperation(value = "通过id修改${table.comment}", notes = "通过id修改${table.comment}")
 public void updateById(${entity} ${table.entityPath}){
-    ${table.entityPath}Service.saveOrUpdate(${table.entityPath});
+    ${table.entityPath}Service.updateById(${table.entityPath});
         }
 
 @RequestMapping(value = "", method = RequestMethod.POST)
-@ApiOperation(value = "添加${table.comment}", notes = "添加${table.comment}")
-public void save(
+@ApiOperation(value = "添加${table.comment}", notes = "添加${table.comment}", response = IdVo.class)
+public Object save(
 #foreach($field in ${table.fields})
     #set($lastField= ${field.propertyName})
 #end
@@ -80,8 +90,17 @@ public void save(
     #end
 #end
         ){
-${entity} ${table.entityPath} =new ${entity}();
+${entity} ${table.entityPath} =new ${entity}(
+#foreach($field in ${table.fields})
+    #set($lastField= ${field.propertyName})
+#end
+
+#foreach($field in ${table.fields})
+    #if( ${field.propertyName.equals("id")})#else${field.propertyName}#if(${lastField} != ${field.propertyName}),#end#end
+#end
+        );
 ${table.entityPath}Service.save(${table.entityPath});
+return ${table.entityPath}.getId();
         }
 
 @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

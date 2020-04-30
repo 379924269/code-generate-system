@@ -1,25 +1,34 @@
-package com.dnp.mybaits.baomidou.code;
+package com.dnp.mybaits.baomidou;
 
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
-import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import org.apache.commons.lang.StringUtils;
+import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * <p>
- * mysql 代码生成器演示例子 这个用的是FreemarkerTemplateEngine（ftl），
- * 所以就不会加载我自定义的controller.java.vm， 生成代码生成器原生的。
- * </p>
+ * 代码生成工具， 需要配置的参数说明
+ * 1、数据库参数：DB_USER_NAME、DB_PASSWORD、DB_URL
+ * 2、文件输出路径：OUT_PUT_DIR
+ * 配置的绝对路径，直接生成到你的项目里面。注意，到java那成目录就可以了，如：G:\oauth2-learning-project\src\main\java
+ * 3、配置模块：MODULE
+ * 如果项目要分多个module，就可以配置模块参数：MODULE
+ * 4、配置要生成的表：INCLUED_TABLE
+ * 不配置就生成全部表，配置了就生成配置的表
+ * 5、配置包名：PACKAGE_NAME
+ * 不配置就生成全部表，配置了就生成配置的表
+ * 6、vo对象的包名配置：VO_PACKAGE_NAME
  *
- * @author jobob
- * @since 2018-09-12
+ * @author: 华仔
+ * @date: 2020/4/30
  */
 public class MysqlGenerator {
     /*作者*/
@@ -29,18 +38,23 @@ public class MysqlGenerator {
     /*数据库密码*/
     private static String DB_PASSWORD = "123456";
     /*数据库url*/
-    private static String DB_URL = "jdbc:mysql://localhost:3306/ms_ptt?useUnicode=true&useSSL=false&characterEncoding=utf8";
+    private static String DB_URL = "jdbc:mysql://localhost:3306/spring-cloud-auth?useUnicode=true&useSSL=false&characterEncoding=utf8";
     /*数据库driver*/
     private static String DB_DRIVER = "com.mysql.jdbc.Driver";
 
-    /*注意写绝对路径：如：G:\my-git-project\code-generate-system\demo-code\src\main\java*/
-    private static String OUT_PUT_DIR = "G:\\my-git-project\\code-generate-system\\demo-code\\src\\main\\java";
-    /*自己定义的包名称*/
-    private static String PK_NAME = "com.dnp.ptt";
+    // 注意:绝对路径的写法，到java目录就可以了：如：G:\my-git-project\code-generate-system\demo-code\src\main\java
+    private static String OUT_PUT_DIR = "G:\\oauth2-learning-project\\oauth2-demo.git\\oauth2-demo\\authorization-code\\qq\\src\\main\\java";
     /* 自己定义的基本的操作生成到那个模块，没有就填空*/
-    private static String MODULE = "system";
+//    moe.cnkirito.security.oauth2.code.modular.model
+    private static String MODULE = "module";
     /*自定义要生成的信息表,不传生成所有表*/
-    private static String[] INCLUED_TABLE = {"users", "manager", "users_role", "manager_role", "resource", "role_resource"};
+    private static String[] INCLUED_TABLE = {};
+
+    /*包名,controller、entity、dao、service到的包*/
+    private static String PACKAGE_NAME = "moe.cnkirito.security.oauth2.code.module";
+
+    /*PageVo分页实体放置的目录*/
+    private static String VO_PACKAGE_NAME = "moe.cnkirito.security.oauth2.code.vo";
 
 
     /**
@@ -56,6 +70,8 @@ public class MysqlGenerator {
         gc.setAuthor(AUTHOR);
         gc.setOpen(false);
         gc.setSwagger2(true);
+        gc.setFileOverride(true);//是否覆盖
+        gc.setBaseResultMap(true);
         autoGenerator.setGlobalConfig(gc);
 
         // 数据源配置
@@ -74,18 +90,21 @@ public class MysqlGenerator {
             pc.setModuleName(MODULE);
         }
 //        pc.setParent("com.baomidou.mybatisplus.samples.generator");
-        pc.setParent(PK_NAME);
+        pc.setParent(PACKAGE_NAME);
         autoGenerator.setPackageInfo(pc);
 
-        // 自定义配置
+        // 自定义配置 // 注入自定义配置，可以在 VM ft 中使用 cfg.abc 设置的值
         InjectionConfig injectionConfig = new InjectionConfig() {
             @Override
             public void initMap() {
-                // to do nothing
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("packageName", PACKAGE_NAME);
+                map.put("pageVo", VO_PACKAGE_NAME);
+                this.setMap(map);
             }
         };
         List<FileOutConfig> focList = new ArrayList<>();
-        focList.add(new FileOutConfig("/templates/mapper.xml.ftl") {
+        focList.add(new FileOutConfig("/templates/mapper.xml.vm") {
             @Override
             public String outputFile(TableInfo tableInfo) {
                 // 自定义输入文件名称
@@ -113,7 +132,7 @@ public class MysqlGenerator {
         strategy.setTablePrefix(pc.getModuleName() + "_");
         autoGenerator.setStrategy(strategy);
         // 选择 freemarker 引擎需要指定如下加，注意 pom 依赖必须有！
-        autoGenerator.setTemplateEngine(new FreemarkerTemplateEngine());
+        autoGenerator.setTemplateEngine(new VelocityTemplateEngine());
         autoGenerator.execute();
     }
 
