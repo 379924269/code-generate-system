@@ -16,7 +16,7 @@ spring:
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/module/*Mapper.xml
-  typeAliasesPackage: moe.cnkirito.security.oauth2.code.modular.model
+  typeAliasesPackage: com.dnp.mybaits.baomidou.module.model
   global-config:
     id-type: 0  #0:数据库ID自增   1:用户输入id  2:全局唯一id(IdWorker)  3:全局唯一ID(uuid)
     db-column-underline: false

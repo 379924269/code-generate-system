@@ -1,6 +1,11 @@
 ## 代码自动生成工具
 自动生成代码，不用老是手动添加所有的基础代码，节约时间去学习其他东西。
 
+### 简单测试：
+1. 添加test.sql文件到数据库
+2. 直接运行MysqlGenerator 生成代码到当前项目，通过springboot：run启动项目
+3. [访问swagger-ui](http://127.0.0.1:8082/swagger-ui.html)访问tb-user-controller中的接口，其他接口有点问题没处理
+
 ### code-generate-baomidou：`常用`
 我一般后端就用它自动生成基础代码。配置springboot-security框架完成后端服务。
 * [MyBatis-Plus参考文档](https://mybatis.plus/)
@@ -15,6 +20,7 @@
   * AppUsersVo、AppSearchUsersListVo这个组合主要是在swagger返回文档中生成这个类型的数据：[{}...],
     集合里面放对象
 * application.yml：可以当成数据库配置参考
+* MybatisPlusConfig：这个主要是用来配置mybaits的扫描路径
 
 ### 自动生成代码改动
 在resources\templates目录下 我用的是vilocity引擎， 例子给的使用framework.

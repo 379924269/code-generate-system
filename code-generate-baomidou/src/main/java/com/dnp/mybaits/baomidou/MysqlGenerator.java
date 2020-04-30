@@ -23,9 +23,11 @@ import java.util.Map;
  * 如果项目要分多个module，就可以配置模块参数：MODULE
  * 4、配置要生成的表：INCLUED_TABLE
  * 不配置就生成全部表，配置了就生成配置的表
- * 5、配置包名：PACKAGE_NAME
- * 注意：配置报名的时候集合加上模块的名字
+ * 5、配置类里面的包名：IN_CLASS_PACKAGE_NAME
+ * 注意：配置报名的时候集合加上模块的名字,这个是放到controller、entity、dao、service里面的。
  * 6、vo对象的包名配置：VO_PACKAGE_NAME
+ * 7、包名：PACKAGE_NAME
+ * 自己定义的包名
  *
  * @author: 华仔
  * @date: 2020/4/30
@@ -49,9 +51,10 @@ public class MysqlGenerator {
     private static String MODULE = "module";
     /*自定义要生成的信息表,不传生成所有表*/
     private static String[] INCLUED_TABLE = {};
-
-    /*包名,controller、entity、dao、service到的包*/
-    private static String PACKAGE_NAME =  "com.dnp.mybaits.baomidou.module";
+    /*自己定义的包名称*/
+    private static String PACKAGE_NAME = "com.dnp.mybaits.baomidou";
+    /*包名,放到controller、entity、dao、service里面的*/
+    private static String IN_CLASS_PACKAGE_NAME =  "com.dnp.mybaits.baomidou.module";
 
     /*PageVo分页实体放置的目录*/
     private static String VO_PACKAGE_NAME = "com.dnp.mybaits.baomidou.vo";
@@ -98,7 +101,7 @@ public class MysqlGenerator {
             @Override
             public void initMap() {
                 Map<String, Object> map = new HashMap<String, Object>();
-                map.put("packageName", PACKAGE_NAME);
+                map.put("packageName", IN_CLASS_PACKAGE_NAME);
                 map.put("pageVo", VO_PACKAGE_NAME);
                 this.setMap(map);
             }
