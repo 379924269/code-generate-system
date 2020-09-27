@@ -31,7 +31,7 @@ import java.util.Date;
 
 /**
  * <p>
- * ${table.comment}  前端控制器
+ * ${table.comment}  接口
  * </p>
  * @author ${author}
  * @since ${date}
@@ -50,27 +50,52 @@ public class ${table.controllerName} {
 @RequestMapping(value = "", method = RequestMethod.GET)
 @ApiOperation(value = "查询所有${table.comment}", notes = "查询所有${table.comment}")
 public Object findAll(PageVo pageVo,
-@ApiParam(name = "search", value = "模糊查询字段") @RequestParam(required = false, defaultValue = "") String search){
-        Page<${entity}> page = new Page(pageVo.getOffset(), pageVo.getLimit());
-        QueryWrapper<${entity}> queryWrapper = new QueryWrapper<>();
-        if (StringUtils.isNotEmpty(search)) {
-        queryWrapper.lambda().like(${entity}::getId, search);
+@ApiParam(name = "search", value = "模糊查询字段") @RequestParam String search){
+        Page<${entity}> page=new Page(pageVo.getOffset(),pageVo.getLimit());
+        QueryWrapper<${entity}> queryWrapper=new QueryWrapper<>();
+        if(StringUtils.isNotEmpty(search)){
+        queryWrapper.lambda().like(${entity}::getId,search);
         }
         queryWrapper.lambda().orderByDesc(${entity}::getId);
-        return ${table.entityPath}Service.page(page, queryWrapper);
+        return ${table.entityPath}Service.page(page,queryWrapper);
         }
 
 
 @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-@ApiOperation(value = "查询${table.comment}详情", notes = "查询${table.comment}详情", httpMethod = "GET" )
+@ApiOperation(value = "查询${table.comment}详情", notes = "查询${table.comment}详情", httpMethod = "GET")
 public ${entity} findById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id){
         return ${table.entityPath}Service.getById(id);
         }
 
 @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 @ApiOperation(value = "通过id修改${table.comment}", notes = "通过id修改${table.comment}")
-public void updateById(${entity} ${table.entityPath}){
-    ${table.entityPath}Service.updateById(${table.entityPath});
+public void updateById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id,
+#foreach($field in ${table.fields})
+    #set($lastField= ${field.propertyName})
+#end
+
+#foreach($field in ${table.fields})
+    #if( ${field.propertyName.equals("id")})
+    #else @ApiParam(name = "${field.propertyName}", value = "${field.comment}")
+    @RequestParam(required = false, name = "${field.propertyName}") ${field.propertyType} ${field.propertyName}
+        #if(${lastField} != ${field.propertyName})
+                ,
+        #end
+    #end
+#end
+        ){
+${entity} ${table.entityPath} =new ${entity}(
+#foreach($field in ${table.fields})
+    #set($lastField= ${field.propertyName})
+#end
+#foreach($field in ${table.fields})
+    ${field.propertyName}
+    #if(${lastField} != ${field.propertyName}),
+    #end
+#end
+        );
+
+${table.entityPath}Service.updateById(${table.entityPath});
         }
 
 @RequestMapping(value = "", method = RequestMethod.POST)
@@ -83,9 +108,8 @@ public Object save(
 #foreach($field in ${table.fields})
     #if( ${field.propertyName.equals("id")})
     #else @ApiParam(name = "${field.propertyName}", value = "${field.comment}")
-    @RequestParam(required = false, name = "${field.propertyName}" ) ${field.propertyType} ${field.propertyName}
-        #if(${lastField} != ${field.propertyName})
-                ,
+    @RequestParam(required = false, name = "${field.propertyName}") ${field.propertyType} ${field.propertyName}
+        #if(${lastField} != ${field.propertyName}),
         #end
     #end
 #end
@@ -96,11 +120,15 @@ ${entity} ${table.entityPath} =new ${entity}(
 #end
 
 #foreach($field in ${table.fields})
-    #if( ${field.propertyName.equals("id")})#else${field.propertyName}#if(${lastField} != ${field.propertyName}),#end#end
+    #if( ${field.propertyName.equals("id")})
+    #else ${field.propertyName}
+        #if(${lastField} != ${field.propertyName}),
+        #end
+    #end
 #end
         );
 ${table.entityPath}Service.save(${table.entityPath});
-return ${table.entityPath}.getId();
+        return ${table.entityPath}.getId();
         }
 
 @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

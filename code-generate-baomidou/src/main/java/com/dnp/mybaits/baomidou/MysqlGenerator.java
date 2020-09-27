@@ -48,13 +48,13 @@ public class MysqlGenerator {
     private static String OUT_PUT_DIR = "G:\\my-git-project\\code-generate-system\\code-generate-baomidou\\src\\main\\java";
     /* 自己定义的基本的操作生成到那个模块，没有就填空*/
 //    moe.cnkirito.security.oauth2.code.modular.model
-    private static String MODULE = "module";
+    private static String MODULE = "module.sys";
     /*自定义要生成的信息表,不传生成所有表*/
     private static String[] INCLUED_TABLE = {};
     /*自己定义的包名称*/
     private static String PACKAGE_NAME = "com.dnp.mybaits.baomidou";
     /*包名,放到controller、entity、dao、service里面的*/
-    private static String IN_CLASS_PACKAGE_NAME =  "com.dnp.mybaits.baomidou.module";
+    private static String IN_CLASS_PACKAGE_NAME =  "com.dnp.mybaits.baomidou" + MODULE;
 
     /*PageVo分页实体放置的目录*/
     private static String VO_PACKAGE_NAME = "com.dnp.mybaits.baomidou.vo";

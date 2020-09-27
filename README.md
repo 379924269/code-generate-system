@@ -1,10 +1,10 @@
 ## 代码自动生成工具
 自动生成代码，不用老是手动添加所有的基础代码，节约时间去学习其他东西。
 
-### 简单测试：
-1. 添加test.sql文件到数据库
-2. 直接运行MysqlGenerator 生成代码到当前项目，通过springboot：run启动项目
-3. [访问swagger-ui](http://127.0.0.1:8082/swagger-ui.html)访问tb-user-controller中的接口，其他接口有点问题没处理
+### MysqlGenerator生成代码操作：
+- 1、导入数据库test.sql
+- 2、运行MysqlGenerator类（可以格式化一下代码：`ctrl + shift + O` 和 `ctrl + shift + L`）
+- 3、[访问swagger-ui](http://127.0.0.1:8082/swagger-ui.html)
 
 ### code-generate-baomidou：`常用`
 我一般后端就用它自动生成基础代码。配置springboot-security框架完成后端服务。

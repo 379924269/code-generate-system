@@ -63,7 +63,7 @@ private static final long serialVersionUID=1L;
         #end
     #end
     #if(${field.keyFlag})
-    ## 主键
+        ## 主键
         #if(${field.keyIdentityFlag})
         @TableId(value = "${field.name}", type = IdType.AUTO)
         #elseif(!$null.isNull(${idType}) && "$!idType" != "")
@@ -71,9 +71,9 @@ private static final long serialVersionUID=1L;
         #elseif(${field.convert})
         @TableId("${field.name}")
         #end
-    ## 普通字段
+        ## 普通字段
     #elseif(${field.fill})
-    ## -----   存在字段填充设置   -----
+        ## -----   存在字段填充设置   -----
         #if(${field.convert})
         @TableField(value = "${field.name}", fill = FieldFill.${field.fill})
         #else
@@ -82,11 +82,11 @@ private static final long serialVersionUID=1L;
     #elseif(${field.convert})
     @TableField("${field.name}")
     #end
-## 乐观锁注解
+    ## 乐观锁注解
     #if(${versionFieldName}==${field.name})
     @Version
     #end
-## 逻辑删除注解
+    ## 逻辑删除注解
     #if(${logicDeleteFieldName}==${field.name})
     @TableLogic
     #end
@@ -139,12 +139,12 @@ protected Serializable pkVal(){
 #if(!${entityLombokModel})
 @Override
 public String toString(){
-        return"${entity}{"+
+        return"${entity}{" +
     #foreach($field in ${table.fields})
         #if($!{foreach.index}==0)
-                "${field.propertyName}="+ ${field.propertyName} +
+                "${field.propertyName}=" + ${field.propertyName} +
         #else
-                ", ${field.propertyName}="+ ${field.propertyName} +
+                ", ${field.propertyName}=" + ${field.propertyName} +
         #end
     #end
         "}";
@@ -175,6 +175,20 @@ public ${entity}(
         #else
                 this.${field.propertyName} = ${field.propertyName};
         #end
+    #end
+        }
+
+
+public ${entity}(
+    #foreach($field in ${table.fields})
+        ${field.propertyType} ${field.propertyName}
+        #if(${lastField} != ${field.propertyName})
+                ,
+        #end
+    #end
+        ){
+    #foreach($field in ${table.fields})
+            this.${field.propertyName} = ${field.propertyName};
     #end
         }
         }
