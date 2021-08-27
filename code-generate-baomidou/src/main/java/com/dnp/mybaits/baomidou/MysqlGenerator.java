@@ -5,14 +5,19 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.InjectionConfig;
 import com.baomidou.mybatisplus.generator.config.*;
+import com.baomidou.mybatisplus.generator.config.builder.ConfigBuilder;
+import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
+import com.baomidou.mybatisplus.generator.config.rules.DbColumnType;
+import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.gson.Gson;
+import springfox.documentation.spring.web.json.Json;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 代码生成工具， 需要配置的参数说明
@@ -40,30 +45,33 @@ public class MysqlGenerator {
     /*数据库密码*/
     private static String DB_PASSWORD = "123456";
     /*数据库url*/
-    private static String DB_URL = "jdbc:mysql://localhost:3306/test?useUnicode=true&useSSL=false&characterEncoding=utf8";
+    private static String DB_URL = "jdbc:mysql://localhost:3306/adaption?useUnicode=true&useSSL=false&characterEncoding=utf8";
     /*数据库driver*/
     private static String DB_DRIVER = "com.mysql.jdbc.Driver";
 
     // 注意:绝对路径的写法，到java目录就可以了：如：G:\my-git-project\code-generate-system\demo-code\src\main\java
-    private static String OUT_PUT_DIR = "G:\\my-git-project\\code-generate-system\\code-generate-baomidou\\src\\main\\java";
+    private static String OUT_PUT_DIR = "H:\\000";
     /* 自己定义的基本的操作生成到那个模块，没有就填空*/
 //    moe.cnkirito.security.oauth2.code.modular.model
-    private static String MODULE = "module.sys";
+    private static String MODULE = "module";
     /*自定义要生成的信息表,不传生成所有表*/
     private static String[] INCLUED_TABLE = {};
     /*自己定义的包名称*/
-    private static String PACKAGE_NAME = "com.dnp.mybaits.baomidou";
-    /*包名,放到controller、entity、dao、service里面的*/
-    private static String IN_CLASS_PACKAGE_NAME =  "com.dnp.mybaits.baomidou" + MODULE;
+    private static String PACKAGE_NAME = "com.dnp.adaption";
+    /*包名,放到controller、entity、dao、service
+    里面的*/
+    private static String IN_CLASS_PACKAGE_NAME = PACKAGE_NAME + "." + MODULE;
 
     /*PageVo分页实体放置的目录*/
-    private static String VO_PACKAGE_NAME = "com.dnp.mybaits.baomidou.vo";
+    private static String VO_PACKAGE_NAME = PACKAGE_NAME + ".vo";
 
 
     /**
      * RUN THIS
      */
     public static void main(String[] args) {
+        Gson gson = new Gson().newBuilder().setPrettyPrinting().create();
+
         // 代码生成器
         AutoGenerator autoGenerator = new AutoGenerator();
 
@@ -73,7 +81,7 @@ public class MysqlGenerator {
         gc.setAuthor(AUTHOR);
         gc.setOpen(false);
         gc.setSwagger2(true);
-        gc.setFileOverride(true);//是否覆盖
+        gc.setFileOverride(true);//是否覆盖 就是生产的新文件是否覆盖旧文件
         gc.setBaseResultMap(true);
         autoGenerator.setGlobalConfig(gc);
 
@@ -84,9 +92,20 @@ public class MysqlGenerator {
         dsc.setDriverName(DB_DRIVER);
         dsc.setUsername(DB_USER_NAME);
         dsc.setPassword(DB_PASSWORD);
+        dsc.setTypeConvert(new MySqlTypeConvert() {
+            @Override
+            public IColumnType processTypeConvert(GlobalConfig globalConfig, String fieldType) {
+                // tinyint 不转换为boolean， 我想转化为integer
+                if (fieldType.toLowerCase().contains("tinyint")) {
+                    return DbColumnType.INTEGER;
+                }
+
+                return super.processTypeConvert(globalConfig, fieldType);
+            }
+        });
         autoGenerator.setDataSource(dsc);
 
-        // 包配置
+        // 包配置  是一些路径信息
         PackageConfig pc = new PackageConfig();
 //        模块名称根据自己的项目自己定义
         if (StringUtils.isNotEmpty(MODULE)) {
@@ -96,7 +115,8 @@ public class MysqlGenerator {
         pc.setParent(PACKAGE_NAME);
         autoGenerator.setPackageInfo(pc);
 
-        // 自定义配置 // 注入自定义配置，可以在 VM ft 中使用 cfg.abc 设置的值
+        // 注入自定义配置，
+        //可以在 VM ft 中使用 ${cfg.xxx} 获取这个值
         InjectionConfig injectionConfig = new InjectionConfig() {
             @Override
             public void initMap() {
@@ -107,12 +127,24 @@ public class MysqlGenerator {
             }
         };
         List<FileOutConfig> focList = new ArrayList<>();
+        //添加自定义的vm 生成代码
         focList.add(new FileOutConfig("/templates/mapper.xml.vm") {
             @Override
             public String outputFile(TableInfo tableInfo) {
+                System.out.println("tableInfo = " + gson.toJson(tableInfo));
                 // 自定义输入文件名称
                 return OUT_PUT_DIR.replace("java", "resources/mapper/") + pc.getModuleName()
                         + "/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+            }
+        });
+
+        //这个是我自定义生成的swaggerui界面返回vo
+        focList.add(new FileOutConfig("/templates/responsePageVo.java.vm") {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输入文件名称
+                return OUT_PUT_DIR.replace("java", "java/com/dnp/adaption/vo/m/")
+                        + tableInfo.getEntityName() + "FindAllPageVo" + StringPool.DOT_JAVA;
             }
         });
         injectionConfig.setFileOutConfigList(focList);
@@ -137,6 +169,24 @@ public class MysqlGenerator {
         // 选择 freemarker 引擎需要指定如下加，注意 pom 依赖必须有！
         autoGenerator.setTemplateEngine(new VelocityTemplateEngine());
         autoGenerator.execute();
-    }
 
+        final String getStrategy = gson.toJson(autoGenerator.getStrategy());
+        System.out.println();
+        System.out.println("=======getStrategy===========");
+        System.out.println(getStrategy);
+
+        System.out.println();
+        System.out.println("=======getPackageInfo===========");
+        System.out.println(gson.toJson(autoGenerator.getPackageInfo()));
+
+        System.out.println();
+        System.out.println("=======getGlobalConfig===========");
+        System.out.println(gson.toJson(autoGenerator.getGlobalConfig()));
+
+        System.out.println();
+        System.out.println("=======getTableInfoList===========");
+        System.out.println(gson.toJson(autoGenerator.getCfg().getConfig().getTableInfoList()));
+
+
+    }
 }

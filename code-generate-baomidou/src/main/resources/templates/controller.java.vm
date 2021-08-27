@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.lang3.StringUtils;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import ${cfg.pageVo}.m.${entity}FindAllPageVo;
 
 import ${package.Entity}.${entity};
 import ${package.Service}.${table.serviceName};
@@ -36,7 +38,7 @@ import java.util.Date;
  * @author ${author}
  * @since ${date}
  */
-@Api(value = "${table.controllerName}", description = "${table.comment}")
+@Api(value = "${table.controllerName}", description = "${table.comment}API")
 @RestController
 @RequestMapping(value = "#if(${package.ModuleName})/${package.ModuleName}#end/${table.entityPath}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 #if(${superControllerClass})
@@ -48,9 +50,9 @@ public class ${table.controllerName} {
 
 ##${table.entityPath} 表字段的小写
 @RequestMapping(value = "", method = RequestMethod.GET)
-@ApiOperation(value = "查询所有${table.comment}", notes = "查询所有${table.comment}")
+@ApiOperation(value = "查询所有${table.comment}", notes = "查询所有${table.comment}", response = ${entity}FindAllPageVo.class)
 public Object findAll(PageVo pageVo,
-@ApiParam(name = "search", value = "模糊查询字段") @RequestParam String search){
+@ApiParam(name = "search", value = "模糊查询字段") @RequestParam(required = false) String search){
         Page<${entity}> page=new Page(pageVo.getOffset(),pageVo.getLimit());
         QueryWrapper<${entity}> queryWrapper=new QueryWrapper<>();
         if(StringUtils.isNotEmpty(search)){
@@ -58,8 +60,9 @@ public Object findAll(PageVo pageVo,
         }
         queryWrapper.lambda().orderByDesc(${entity}::getId);
         return ${table.entityPath}Service.page(page,queryWrapper);
-        }
-
+        IPage<${entity}> page1 = ${table.entityPath}Service.page(page,queryWrapper);
+        return new ResponsePageVo<>(page1.getTotal(), page1.getRecords());
+}
 
 @RequestMapping(value = "/{id}", method = RequestMethod.GET)
 @ApiOperation(value = "查询${table.comment}详情", notes = "查询${table.comment}详情", httpMethod = "GET")
@@ -76,27 +79,17 @@ public void updateById(@ApiParam(name = "id", value = "${table.comment}id", requ
 
 #foreach($field in ${table.fields})
     #if( ${field.propertyName.equals("id")})
-    #else @ApiParam(name = "${field.propertyName}", value = "${field.comment}")
-    @RequestParam(required = false, name = "${field.propertyName}") ${field.propertyType} ${field.propertyName}
-        #if(${lastField} != ${field.propertyName})
-                ,
-        #end
-    #end
-#end
-        ){
-${entity} ${table.entityPath} =new ${entity}(
-#foreach($field in ${table.fields})
+    #else @ApiParam(name = "${field.propertyName}", value = "${field.comment}") @RequestParam(required = false, name = "${field.propertyName}") ${field.propertyType} ${field.propertyName}#if(${lastField} != ${field.propertyName})
+
+            ,#end#end
+#end){
+${entity} ${table.entityPath} =new ${entity}(#foreach($field in ${table.fields})
     #set($lastField= ${field.propertyName})
 #end
-#foreach($field in ${table.fields})
-    ${field.propertyName}
-    #if(${lastField} != ${field.propertyName}),
-    #end
-#end
-        );
+#foreach($field in ${table.fields})${field.propertyName}#if(${lastField} != ${field.propertyName}),#end#end);
 
 ${table.entityPath}Service.updateById(${table.entityPath});
-        }
+}
 
 @RequestMapping(value = "", method = RequestMethod.POST)
 @ApiOperation(value = "添加${table.comment}", notes = "添加${table.comment}", response = IdVo.class)
@@ -104,37 +97,25 @@ public Object save(
 #foreach($field in ${table.fields})
     #set($lastField= ${field.propertyName})
 #end
-
 #foreach($field in ${table.fields})
     #if( ${field.propertyName.equals("id")})
-    #else @ApiParam(name = "${field.propertyName}", value = "${field.comment}")
-    @RequestParam(required = false, name = "${field.propertyName}") ${field.propertyType} ${field.propertyName}
-        #if(${lastField} != ${field.propertyName}),
-        #end
-    #end
-#end
-        ){
-${entity} ${table.entityPath} =new ${entity}(
-#foreach($field in ${table.fields})
+    #else @ApiParam(name = "${field.propertyName}", value = "${field.comment}") @RequestParam(required = false, name = "${field.propertyName}") ${field.propertyType} ${field.propertyName}#if(${lastField} != ${field.propertyName})
+
+            ,#end#end#end){
+## 这里是设置一个最后一个字段， 用来判断是否添加逗号
+${entity} ${table.entityPath} =new ${entity}(#foreach($field in ${table.fields})
     #set($lastField= ${field.propertyName})
 #end
-
 #foreach($field in ${table.fields})
-    #if( ${field.propertyName.equals("id")})
-    #else ${field.propertyName}
-        #if(${lastField} != ${field.propertyName}),
-        #end
-    #end
-#end
-        );
+    #if(${field.propertyName.equals("id")})#else${field.propertyName}#if(${lastField} != ${field.propertyName}),#end#end#end);
 ${table.entityPath}Service.save(${table.entityPath});
-        return ${table.entityPath}.getId();
-        }
+        return new IdVo(${table.entityPath}.getId());
+}
 
 @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 @ApiOperation(value = "删除${table.comment}", notes = "修改${table.comment}")
 public void deleteById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id){
     ${table.entityPath}Service.removeById(id);
-        }
+}
 
-        }
+}

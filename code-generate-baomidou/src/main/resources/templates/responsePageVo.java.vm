@@ -1,0 +1,24 @@
+package ${cfg.pageVo}.m;
+
+import  ${package.Entity}.${entity};
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.util.List;
+
+/**
+ * description: ${table.comment}
+ *
+ * @author ${author}
+ * @date ${date}
+ */
+@Data
+@ApiModel(value = "${entity}PageVo", description = "${table.comment}")
+public class ${entity}FindAllPageVo {
+    @ApiModelProperty(value = "$table.comment", dataType = "list")
+    private List<${entity}> records;
+
+    @ApiModelProperty(value = "总条数", dataType = "integer")
+    private Long total;
+}

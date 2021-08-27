@@ -34,7 +34,7 @@ import lombok.experimental.Accessors;
 @TableName("${table.name}")
 #end
 #if(${swagger2})
-@ApiModel(value = "${entity}对象", description = "$!{table.comment}")
+@ApiModel(value = "${entity}($!{table.comment})对象", description = "$!{table.comment}")
 #end
 #if(${superEntityClass})
 public class ${entity} extends ${superEntityClass}#if(${activeRecord})<${entity}>#end {
@@ -49,7 +49,6 @@ private static final long serialVersionUID=1L;
 #end
 ## ----------  BEGIN 字段循环遍历  ----------
 #foreach($field in ${table.fields})
-
     #if(${field.keyFlag})
         #set($keyPropertyName=${field.propertyName})
     #end
@@ -152,8 +151,7 @@ public String toString(){
 #end
 
 #*弄一个无参数构造器*#
-public ${entity}(){
-        }
+public ${entity}(){}
 
 #*弄一个带全部参数的构造器(出去id)*#
 #foreach($field in ${table.fields})
@@ -163,32 +161,23 @@ public ${entity}(
     #foreach($field in ${table.fields})
         #if( ${field.propertyName.equals("id")})
         #else
-            ${field.propertyType} ${field.propertyName}
-            #if(${lastField} != ${field.propertyName})
-                    ,
-            #end
+            ${field.propertyType} ${field.propertyName}#if(${lastField} != ${field.propertyName}),#end
         #end
-    #end
-        ){
+    #end){
     #foreach($field in ${table.fields})
         #if( ${field.propertyName.equals("id")})
         #else
                 this.${field.propertyName} = ${field.propertyName};
         #end
     #end
-        }
-
+}
 
 public ${entity}(
     #foreach($field in ${table.fields})
-        ${field.propertyType} ${field.propertyName}
-        #if(${lastField} != ${field.propertyName})
-                ,
-        #end
-    #end
-        ){
+        ${field.propertyType} ${field.propertyName}#if(${lastField} != ${field.propertyName}),#end
+    #end){
     #foreach($field in ${table.fields})
             this.${field.propertyName} = ${field.propertyName};
     #end
-        }
-        }
+}
+}
