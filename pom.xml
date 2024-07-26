@@ -21,7 +21,8 @@
 
 	<modules>
 		<module>code-generate-baomidou</module>
-	</modules>
+        <module>springcloud-knif4j-generate</module>
+    </modules>
 
 	<dependencies>
 		<dependency>

@@ -11,8 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.apache.commons.lang3.StringUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import ${cfg.commonPageVo}.ResponsePageVo;
-import ${cfg.pageVo}.m.${entity}FindAllPageVo;
+import com.dnp.common.api.CommonResult;
+import com.dnp.common.domain.ResPage;
 
 import ${package.Entity}.${entity};
 import ${package.Service}.${table.serviceName};
@@ -51,8 +51,8 @@ public class ${table.controllerName} {
 
 ##${table.entityPath} 表字段的小写
 @RequestMapping(value = "", method = RequestMethod.GET)
-@ApiOperation(value = "查询所有${table.comment}", response = ${entity}FindAllPageVo.class)
-public Object findAll(PageVo pageVo,
+@ApiOperation(value = "查询所有${table.comment}")
+public CommonResult<ResPage<${entity}>> findAll(PageVo pageVo,
 @ApiParam(name = "search", value = "模糊查询字段") @RequestParam(required = false) String search){
         Page<${entity}> page=new Page(pageVo.getOffset(),pageVo.getLimit());
         page.setOrders(PageVo.getOrderItemList(pageVo));
@@ -61,18 +61,18 @@ public Object findAll(PageVo pageVo,
         queryWrapper.lambda().like(${entity}::getId,search);
         }
         IPage<${entity}> page1 = ${table.entityPath}Service.page(page,queryWrapper);
-        return new ResponsePageVo<>(page1.getTotal(), page1.getRecords());
+        return CommonResult.success(new ResPage<>(page1.getRecords(), page1.getTotal()));
 }
 
 @RequestMapping(value = "/{id}", method = RequestMethod.GET)
 @ApiOperation(value = "查询${table.comment}详情", httpMethod = "GET")
-public ${entity} findById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id){
-        return ${table.entityPath}Service.getById(id);
+public CommonResult<${entity}> findById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id){
+        return CommonResult.success(${table.entityPath}Service.getById(id));
         }
 
 @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 @ApiOperation(value = "通过id修改${table.comment}")
-public void updateById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id,
+public CommonResult updateById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id,
 #foreach($field in ${table.fields})
     #set($lastField= ${field.propertyName})
 #end
@@ -89,11 +89,12 @@ ${entity} ${table.entityPath} =new ${entity}(#foreach($field in ${table.fields})
 #foreach($field in ${table.fields})${field.propertyName}#if(${lastField} != ${field.propertyName}),#end#end);
 
 ${table.entityPath}Service.updateById(${table.entityPath});
+        return CommonResult.success();
 }
 
 @RequestMapping(value = "", method = RequestMethod.POST)
 @ApiOperation(value = "添加${table.comment}", response = IdVo.class)
-public Object save(
+public CommonResult<Integer> save(
 #foreach($field in ${table.fields})
     #set($lastField= ${field.propertyName})
 #end
@@ -109,13 +110,14 @@ ${entity} ${table.entityPath} =new ${entity}(#foreach($field in ${table.fields})
 #foreach($field in ${table.fields})
     #if(${field.propertyName.equals("id")})#else${field.propertyName}#if(${lastField} != ${field.propertyName}),#end#end#end);
 ${table.entityPath}Service.save(${table.entityPath});
-        return new IdVo(${table.entityPath}.getId());
+        return CommonResult.success(${table.entityPath}.getId());
 }
 
 @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 @ApiOperation(value = "删除${table.comment}")
-public void deleteById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id){
+public CommonResult deleteById(@ApiParam(name = "id", value = "${table.comment}id", required = true) @PathVariable("id") Integer id){
     ${table.entityPath}Service.removeById(id);
+        return CommonResult.success();
 }
 
 }
