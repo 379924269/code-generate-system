@@ -1,0 +1,100 @@
+package ${package.Controller};
+
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.huazai.hosprojecttest.model.${entity};
+import com.huazai.hosprojecttest.response.CommonResult;
+import com.huazai.hosprojecttest.service.I${entity}Service;
+import com.huazai.hosprojecttest.vo.IdVO;
+import com.huazai.hosprojecttest.vo.PageParam;
+import com.huazai.hosprojecttest.vo.${entity}VO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+#if(${restControllerStyle})
+import org.springframework.web.bind.annotation.RestController;
+#else
+import org.springframework.stereotype.Controller;
+#end
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+
+/**
+ * <p>
+ * $!{table.comment} 前端控制器
+ * </p>
+ *
+ * @author ${author}
+ * @since ${date}
+ */
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+#if(${kotlin})
+class ${table.controllerName}#if(${superControllerClass}) : ${superControllerClass}()#end
+
+#else
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+@Tag(name = "${table.comment}")
+@AllArgsConstructor
+public class ${table.controllerName} {
+#end
+
+private ${table.serviceName} ${table.entityPath}Service;
+
+@GetMapping("")
+@Operation(summary = "查询所有${table.comment}")
+@Parameters({
+        @Parameter(name = "records", hidden = true),
+        @Parameter(name = "total", hidden = true),
+        @Parameter(name = "searchCount", hidden = true),
+})
+public CommonResult<IPage<${entity}>> findAll(PageParam<${entity}> pageParam) {
+    IPage<${entity}> page = ${table.entityPath}Service.page(pageParam);
+    return CommonResult.success(page);
+}
+
+@GetMapping("/{id}")
+@Operation(summary = "通过id查看用户")
+public CommonResult<${entity}> findById(@PathVariable("id") Integer id) {
+    final ${entity} byId = ${table.entityPath}Service.getById(id);
+    return CommonResult.success(byId);
+}
+
+@PostMapping("")
+@Operation(summary = "添加用户")
+public CommonResult<IdVO> save(@Valid @RequestBody ${entity}VO ${table.entityPath}VO) {
+    final ${entity} ${table.entityPath} = JSONUtil.toBean(JSONUtil.toJsonStr(${table.entityPath}VO), ${entity}.class);
+    ${table.entityPath}Service.save(${table.entityPath});
+    return CommonResult.success(new IdVO(${table.entityPath}.getId()));
+}
+
+@PutMapping("")
+@Operation(summary = "修改用户")
+public CommonResult<${entity}> updateById(@RequestBody ${entity} ${table.entityPath}) {
+    ${table.entityPath}Service.save(${table.entityPath});
+    return CommonResult.success();
+}
+
+@RequestMapping(value = "/batchDelete", method = RequestMethod.DELETE)
+@Operation(summary = "批量删除用户")
+public CommonResult<Void> batchDelete(@RequestBody List<Integer> ids) {
+    ${table.entityPath}Service.removeBatchByIds(ids);
+    return CommonResult.success();
+}
+
+}
+#end
